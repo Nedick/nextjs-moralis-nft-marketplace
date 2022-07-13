@@ -141,9 +141,9 @@ async function main() {
     })
     console.log(canceledResponse)
     if (listedResponse.success && boughtResponse.success && canceledResponse.success) {
-        console.log("Success! Event successfully observed!")
+        console.log("Success! Database events registered!")
     } else {
-        console.log("Event failed observation!")
+        console.log("Events failed registration!")
     }
 }
 
