@@ -60,7 +60,7 @@ async function main() {
         chainId: moralisChainId,
         sync_historical: true,
         address: contractAddress,
-        topic: "ItemBought(adderss,address,uint256,uint256)",
+        topic: "ItemBought(address,address,uint256,uint256)",
         abi: {
             anonymous: false,
             inputs: [
