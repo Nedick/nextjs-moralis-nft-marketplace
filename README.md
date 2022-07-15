@@ -1,8 +1,18 @@
 # Full-Stack Setup
 
-## 1. Git clone the contracts repo
+## 1. Git clone the contracts repo and Front-end repo
+
+### Contracts repo with setup instructions
 
 In it's own terminal / command line, run: 
+
+```
+git clone https://github.com/Nedick/hardhat-nft-marketplace
+cd hardhat-nft-marketplace
+yarn
+```
+
+### Front-end repo with setup instructions
 
 ```
 git clone https://github.com/Nedick/nextjs-moralis-nft-marketplace.git
@@ -10,7 +20,7 @@ cd nextjs-moralis-nft-marketplace
 yarn
 ```
 
-## 2. Start your node 
+## 2. Start your node from contracts repo
 
 After installing dependencies, start a node on it's own terminal with:
 
@@ -18,7 +28,7 @@ After installing dependencies, start a node on it's own terminal with:
 yarn hardhat node
 ```
 
-## 3. Connect your codebase to your moralis server
+## 3. Connect your codebase to your moralis server from Front-end repo
 
 Setup your event [moralis](https://moralis.io/). You'll need a new moralis server to get started. 
 
@@ -51,7 +61,7 @@ Replace the `XXX.usemoralis.com` with your subdomain, like `212ug12gYourSubDomai
 yarn global add moralis-admin-cli
 ```
 
-## 5. Setup your Moralis reverse proxy 
+## 5. Setup your Moralis reverse proxy in Front-end repo
 
 > Optionally: On your server, click on "View Details" and then "Devchain Proxy Server" and follow the instructions. You'll want to use the `hardhat` connection. (This instruction is for legacy UI) 
 
@@ -74,7 +84,7 @@ You'll know you've done it right when you can see a green `connected` button aft
 
 Anytime you reset your hardhat node, you'll need to press the `RESET LOCAL CHAIN` button on your UI!
 
-## 6. Setup your Cloud functions
+## 6. Setup your Cloud functions in Front-end repo
 
 In a separate terminal (you'll have a few up throughout these steps)
 
@@ -85,3 +95,86 @@ Run `yarn moralis:cloud` in one terminal. If you don't have `moralis-admin-cli` 
 If you hit the little down arrow in your server, then hit `Cloud Functions` you should see text in there. 
 
 Make sure you've run `yarn moralis:sync` from the previous step to connect your local Hardhat devchain with your Moralis instance. You'll need these 3 moralis commands running at the same time. 
+
+## 7. Add your event listeners from Front-end repo
+
+### You can do this programatically by running:
+
+```
+node addEvents.js
+```
+
+### Or, if you want to do it manually
+
+Finally, go to `View Details` -> `Sync` and hit `Add New Sync` -> `Sync and Watch Contract Events`
+
+Add all 3 events by adding it's information, like so: 
+
+1. ItemListed:
+   1. Description: ItemListed
+   2. Sync_historical: True
+   3. Topic: ItemListed(address,address,uint256,uint256)
+   4. Abi: 
+```
+{
+  "anonymous": false,
+  "inputs": [
+    {
+      "indexed": true,
+      "internalType": "address",
+      "name": "seller",
+      "type": "address"
+    },
+    {
+      "indexed": true,
+      "internalType": "address",
+      "name": "nftAddress",
+      "type": "address"
+    },
+    {
+      "indexed": true,
+      "internalType": "uint256",
+      "name": "tokenId",
+      "type": "uint256"
+    },
+    {
+      "indexed": false,
+      "internalType": "uint256",
+      "name": "price",
+      "type": "uint256"
+    }
+  ],
+  "name": "ItemListed",
+  "type": "event"
+}
+```
+    5. Address: <YOUR_NFT_MARKETPLACE_DEPLOYED_ADDRESS_FROM_HARDHAT>
+    6. TableName: ItemListed
+
+You can add the canceled and bought events later. 
+
+## 8. Mint and List your NFT from Contracts repo
+
+Back in the contract directory, run:
+
+```
+yarn hardhat run scripts/mint-and-list.js --network localhost
+```
+
+And you'll now have an NFT listed on your marketplace.
+
+## 9. Start your front end from Front-end repo
+
+At this point, you'll have a few terminals running:
+
+- Your Hardhat Node (From Contracts repo)
+- Your Hardhat Node syncing with your moralis server (From Front-end repo)
+- Your Cloud Functions syncing (From Front-end repo)
+
+And you're about to have one more for your front end (From Front-end repo). 
+
+```
+yarn run dev
+```
+
+And you'll have your front end, indexing service running, and blockchain running.
