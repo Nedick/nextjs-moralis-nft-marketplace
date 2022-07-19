@@ -31,12 +31,24 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
     const [tokenDescription, setTokenDescription] = useState("")
     const [showModal, setShowModal] = useState(false)
     const hideModal = () => setShowModal(false)
+    const dispatch = useNotification()
 
     const { runContractFunction: getTokenURI } = useWeb3Contract({
         abi: nftAbi,
         contractAddress: nftAddress,
         functionName: "tokenURI",
         params: {
+            tokenId: tokenId,
+        },
+    })
+
+    const { runContractFunction: buyItem } = useWeb3Contract({
+        abi: nftMarketplaceAbi,
+        contractAddress: marketplaceAddress,
+        functionName: "buyItem",
+        msgValue: price,
+        params: {
+            nftAddress: nftAddress,
             tokenId: tokenId,
         },
     })
@@ -68,7 +80,21 @@ export default function NFTBox({ price, nftAddress, tokenId, marketplaceAddress,
     const formattedSellerAddress = isOwnedByUser ? "You" : truncateStr(seller || "", 15)
 
     const handleCardClick = async () => {
-        isOwnedByUser ? setShowModal(true) : console.log("You do not own this token.")
+        isOwnedByUser
+            ? setShowModal(true)
+            : buyItem({
+                  onError: (error) => console.log(error),
+                  onSuccess: () => handleBuyItemSuccess(),
+              })
+    }
+
+    const handleBuyItemSuccess = () => {
+        dispatch({
+            type: "success",
+            message: "Item purchased",
+            title: "Item purchased - please refresh (and move blocks)",
+            position: "topR",
+        })
     }
 
     return (
